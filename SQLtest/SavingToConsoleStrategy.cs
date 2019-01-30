@@ -10,12 +10,12 @@ namespace SQLtest
     {
         void SavingStrategy.SaveResult(QueryPerformanceResult result)
         {
-            Console.WriteLine("Data Base query performance result:");
-            Console.WriteLine("Line number: " + result.LineNumber.ToString());
-            Console.WriteLine("Cpu time: " + result.CpuTime.ToString());
-            Console.WriteLine("Elapsed time: " + result.ElapsedTime.ToString());
-            Console.WriteLine("Bytes received: " + result.BytesReceived.ToString());
-            Console.WriteLine("Rows selected: " + result.SelectRows.ToString() + "\n");
+            Console.WriteLine("Data Base query performance result:" +
+            "\nLine number: " + result.LineNumber.ToString() +
+            "\nCpu time: " + result.CpuTime.ToString() +
+            "\nElapsed time: " + result.ElapsedTime.ToString() +
+            "\nBytes received: " + result.BytesReceived.ToString() +
+            "\nRows selected: " + result.SelectRows.ToString() + "\n");
         }
     }
 }

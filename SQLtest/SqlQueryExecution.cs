@@ -23,18 +23,15 @@ namespace SQLtest
             connection.StatisticsEnabled = true;
         }
 
-        public DataSet Execute(String sqlQuery, int lineNumber)
+        public void Execute(String sqlQuery, int lineNumber)
         {
             connection.Open();
             connection.ResetStatistics();
-
-            SqlDataAdapter adapter = new SqlDataAdapter((statisticsOn + sqlQuery), connection);
-            DataSet dataSet = new DataSet();
-
+            
+            SqlCommand command = new SqlCommand(statisticsOn + sqlQuery, connection);
             connection.InfoMessage += TrackInfo;
-
-            adapter.Fill(dataSet);
-
+            command.ExecuteNonQuery();
+            
             QueryPerformanceResult performanceResult = new QueryPerformanceResult();
             performanceResult.LineNumber = lineNumber;
             performanceResult.setTime(message);
@@ -45,7 +42,6 @@ namespace SQLtest
             resultSaver.SaveResult(performanceResult);
 
             connection.Close();
-            return dataSet;
         }
 
         internal static void TrackInfo(object sender, SqlInfoMessageEventArgs e)

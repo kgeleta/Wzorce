@@ -23,15 +23,21 @@ namespace SQLtest
                 Console.WriteLine("Connecting to sql");
                 SqlConnection connection = new SqlConnection(builder.ConnectionString);
 
-                ResultSaver resultSaver = new ResultSaver(new SavingToConsoleStrategy());
+                //ResultSaver resultSaver = new ResultSaver(new SavingToConsoleStrategy());
+                ResultSaver resultSaver = new ResultSaver(new SavingToDBStrategy());
+
                 SqlQueryExecution queryExecution = new SqlQueryExecution(connection);
                 queryExecution.ResultSaver = resultSaver;
-                
 
-                DataSet result = queryExecution.Execute("select top 10 BusinessEntityID, FirstName, LastName from Person.Person;", 27);
-                DataSet res2 = queryExecution.Execute("select * from Person.Person;", 29);
-                
-                
+
+                queryExecution.Execute("select top 10 BusinessEntityID, FirstName, LastName from Person.Person;", 31);
+                queryExecution.Execute("select * from Person.Person;", 32);
+                queryExecution.Execute("select * from HumanResources.Employee where BusinessEntityID = any(select BusinessEntityID from Person.Person where PersonType = 'EM');", 33);
+                queryExecution.Execute("select * from Sales.Customer", 34);
+                queryExecution.Execute("select * from Sales.CreditCard", 35);
+
+
+
             }
             catch(SqlException e)
             {
