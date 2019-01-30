@@ -15,9 +15,9 @@ namespace SQLtest
             try
             {
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = "BMO\\SQLEXPRESS";
-                builder.UserID = "krzysiek";
-                builder.Password = "password";
+                builder.DataSource = "DESKTOP-T44BHH8\\SQLEXPRESS"; //"BMO\\SQLEXPRESS"; // DESKTOP-T44BHH8\SQLEXPRESS
+                builder.UserID = "rejurhf";
+                builder.Password = "4815162342";
                 builder.InitialCatalog = "AdventureWorks2017";
 
                 Console.WriteLine("Connecting to sql");
