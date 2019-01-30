@@ -16,9 +16,9 @@ namespace SQLtest
         public SavingToDBStrategy()
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-            builder.DataSource = "BMO\\SQLEXPRESS";
-            builder.UserID = "krzysiek";
-            builder.Password = "password";
+            builder.DataSource = "DESKTOP-T44BHH8\\SQLEXPRESS"; //BMO\\SQLEXPRESS
+            builder.UserID = "rejurhf";
+            builder.Password = "4815162342";
             builder.InitialCatalog = "kgeleta";
             this.connection = new SqlConnection(builder.ConnectionString);
         }

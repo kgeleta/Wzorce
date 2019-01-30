@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-
+using System.Threading;
 
 namespace SQLtest
 {
@@ -35,15 +35,32 @@ namespace SQLtest
                 queryExecution.Execute("select * from HumanResources.Employee where BusinessEntityID = any(select BusinessEntityID from Person.Person where PersonType = 'EM');", 33);
                 queryExecution.Execute("select * from Sales.Customer", 34);
                 queryExecution.Execute("select * from Sales.CreditCard", 35);
-
-
-
             }
             catch(SqlException e)
             {
                 Console.WriteLine(e.ToString());
             }
             Console.WriteLine("All done");
+
+            // Create new stopwatch.
+            PerformanceTester performanceTester = new PerformanceTester();
+
+            // Begin timing.
+            performanceTester.Start();
+
+            // Do something.
+            for (int i = 0; i < 1000; i++)
+            {
+                Thread.Sleep(1);
+            }
+
+            // Stop timing.
+            performanceTester.Stop();
+
+            // Write result.
+            Console.WriteLine("Time elapsed: {0}", performanceTester.Elapsed);
+            Console.WriteLine("All done");
+
             Console.ReadKey(true);
         }
     }
