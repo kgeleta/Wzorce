@@ -29,7 +29,6 @@ namespace SQLtest
             connection.ResetStatistics();
             
             SqlCommand command = new SqlCommand(statisticsOn + sqlQuery, connection);
-
             connection.InfoMessage += TrackInfo;
             command.ExecuteNonQuery();
             
