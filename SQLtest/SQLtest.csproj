@@ -46,6 +46,7 @@
     <Compile Include="ResultSaver.cs" />
     <Compile Include="SavingStrategy.cs" />
     <Compile Include="SavingToConsoleStrategy.cs" />
+    <Compile Include="SavingToXMLStrategy.cs" />
     <Compile Include="SqlQueryExecution.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
