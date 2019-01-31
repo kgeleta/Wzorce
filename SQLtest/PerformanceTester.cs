@@ -37,13 +37,6 @@
             }
         }
 
-        public static PerformanceTester StartNew()
-        {
-            PerformanceTester p = new PerformanceTester();
-            p.Start();
-            return p;
-        }
-
         public void Stop()
         {
             // Calling stop on a stopped is a no-op
@@ -103,19 +96,6 @@
             isRunning = false;
             startTimeStamp = 0;
             startCPUTime = 0;
-        }
-
-        // Convenience method for replacing {pt.Reset(); pt.Start();} with a single pt.Restart()
-        public void Restart()
-        {
-            elapsed = 0;
-            startTimeStamp = GetTimestamp();
-            elapsedCPU = 0;
-            startCPUTime = GetCPUTime();
-            avgCPUUsage = 0;
-            startCounterSample = GetNextSample();
-
-            isRunning = true;
         }
 
 
