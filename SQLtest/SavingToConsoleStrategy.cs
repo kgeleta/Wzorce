@@ -17,5 +17,13 @@ namespace SQLtest
             "\nBytes received: " + result.BytesReceived.ToString() +
             "\nRows selected: " + result.SelectRows.ToString() + "\n");
         }
+
+        void SavingStrategy.SaveResult(LocalPerformanceResult result)
+        {
+            Console.WriteLine("Data Base query performance result:" +
+            "\nCpu time: " + result.CpuTime.ToString() +
+            "\nCpu usage: " + result.CpuUsage.ToString() +
+            "\nElapsed time: " + result.ElapsedTime.ToString() + "\n");
+        }
     }
 }

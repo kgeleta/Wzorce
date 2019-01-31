@@ -9,5 +9,6 @@ namespace SQLtest
     interface SavingStrategy
     {
         void SaveResult(QueryPerformanceResult result);
+        void SaveResult(LocalPerformanceResult result);
     }
 }

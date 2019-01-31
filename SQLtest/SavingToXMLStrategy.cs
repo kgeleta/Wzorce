@@ -10,7 +10,12 @@ namespace SQLtest
     {
         void SavingStrategy.SaveResult(QueryPerformanceResult result)
         {
+            Console.WriteLine("Not implemented");
+        }
 
+        void SavingStrategy.SaveResult(LocalPerformanceResult result)
+        {
+            Console.WriteLine("Not implemented");
         }
     }
 }

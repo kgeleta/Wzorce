@@ -1,17 +1,24 @@
 ﻿namespace SQLtest
 {
-    using Microsoft.Win32;
     using System;
-    #if FEATURE_NETCORE
-        using System.Security;
-    #endif
+    using System.Diagnostics;
 
     public class PerformanceTester{
+        private static Process process = Process.GetCurrentProcess();
+        private static PerformanceCounter cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
         private const long TicksPerMillisecond = 10000;
 
         private long elapsed;
         private long startTimeStamp;
+        private long elapsedCPU;
+        private long startCPUTime;
+        private CounterSample startCounterSample;
+        private float avgCPUUsage;
+
         private bool isRunning;
+        private ResultSaver resultSaver;
+
+        internal ResultSaver ResultSaver { get => resultSaver; set => resultSaver = value; }
 
         public PerformanceTester()
         {
@@ -24,6 +31,8 @@
             if (!isRunning)
             {
                 startTimeStamp = GetTimestamp();
+                startCPUTime = GetCPUTime();
+                startCounterSample = GetNextSample();
                 isRunning = true;
             }
         }
@@ -43,6 +52,14 @@
                 long endTimeStamp = GetTimestamp();
                 long elapsedThisPeriod = endTimeStamp - startTimeStamp;
                 elapsed += elapsedThisPeriod;
+
+                long endCPUTime = GetCPUTime();
+                long elapsedThisPeriodCPU = endCPUTime - startCPUTime;
+                elapsedCPU += elapsedThisPeriodCPU;
+
+                CounterSample counterSampleCur = GetNextSample();
+                avgCPUUsage = CounterSample.Calculate(startCounterSample, counterSampleCur);
+
                 isRunning = false;
 
                 if(elapsed < 0)
@@ -55,14 +72,37 @@
 
                     elapsed = 0;
                 }
+                if(elapsedCPU < 0)
+                {
+                    elapsedCPU = 0;
+                }
+                if (avgCPUUsage < 0)
+                {
+                    elapsedCPU = 0;
+                }
+
+                Save();
+                Reset();
             }
+        }
+
+        private void Save()
+        {
+            LocalPerformanceResult performanceResult = new LocalPerformanceResult();
+            performanceResult.CpuTime = elapsedCPU;
+            performanceResult.CpuUsage = avgCPUUsage;
+            performanceResult.ElapsedTime = elapsed/TicksPerMillisecond;
+            resultSaver.SaveResult(performanceResult);
         }
 
         public void Reset()
         {
             elapsed = 0;
+            elapsedCPU = 0;
+            avgCPUUsage = 0;
             isRunning = false;
             startTimeStamp = 0;
+            startCPUTime = 0;
         }
 
         // Convenience method for replacing {pt.Reset(); pt.Start();} with a single pt.Restart()
@@ -70,8 +110,14 @@
         {
             elapsed = 0;
             startTimeStamp = GetTimestamp();
+            elapsedCPU = 0;
+            startCPUTime = GetCPUTime();
+            avgCPUUsage = 0;
+            startCounterSample = GetNextSample();
+
             isRunning = true;
         }
+
 
         public bool IsRunning
         {
@@ -83,31 +129,34 @@
             get { return new TimeSpan(GetElapsedDateTimeTicks()); }
         }
 
+        public TimeSpan ElapsedCPU
+        {
+            get { return new TimeSpan(GetElapsedCPUTime()); }
+        }
+
+        public double AverageCPUUsage
+        {
+            get { return GetAvgCPUUsage(); }
+        }
+
         public long ElapsedMilliseconds
         {
             get { return GetElapsedDateTimeTicks() / TicksPerMillisecond; }
         }
 
-        public long ElapsedTicks
+        public double ElapsedCPUMilliseconds
         {
-            get { return GetRawElapsedTicks(); }
+            get { return GetElapsedCPUTime() / TicksPerMillisecond; }
         }
 
-#if FEATURE_NETCORE
-        [SecuritySafeCritical]
-#endif
+       
         public static long GetTimestamp()
         {
             return DateTime.UtcNow.Ticks;
         }
 
-        //Get the elapsed ticks
-#if FEATURE_NETCORE
-        public long GetRawElapsedTicks() {
-#else
-        private long GetRawElapsedTicks()
+        private long GetElapsedDateTimeTicks()
         {
-#endif
             long timeElapsed = elapsed;
 
             if (isRunning)
@@ -121,16 +170,40 @@
             return timeElapsed;
         }
 
-        // Get the elapsed ticks.        
-#if FEATURE_NETCORE
-        public long GetElapsedDateTimeTicks() {
-#else
-        private long GetElapsedDateTimeTicks()
+        public static long GetCPUTime()
         {
-#endif
-            long rawTicks = GetRawElapsedTicks();
-            return rawTicks;
-            
+            return (long) process.UserProcessorTime.TotalMilliseconds;
+        }
+
+        private long GetElapsedCPUTime()
+        {
+            double timeElapsedCPU = elapsedCPU;
+
+            if (isRunning)
+            {
+                double currentCPUTime = GetCPUTime();
+                double elapsedUntilNow = currentCPUTime - startCPUTime;
+                timeElapsedCPU += elapsedUntilNow;
+            }
+            return (long)timeElapsedCPU;
+        }
+
+        private static CounterSample GetNextSample()
+        {
+            return cpuCounter.NextSample();
+        }
+
+        private float GetAvgCPUUsage()
+        {
+            float finalCPUPrcnt = avgCPUUsage;
+
+            if (isRunning)
+            {
+                CounterSample counterSampleCur = GetNextSample();
+                finalCPUPrcnt = CounterSample.Calculate(startCounterSample, counterSampleCur);
+            }
+            return finalCPUPrcnt;
+
         }
     }
 }

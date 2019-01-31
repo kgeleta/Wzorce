@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
+using System.Diagnostics;
 
 namespace SQLtest
 {
@@ -12,6 +13,14 @@ namespace SQLtest
     {
         static void Main(string[] args)
         {
+            // Create new stopwatch.
+            PerformanceTester performanceTester = new PerformanceTester();
+            ResultSaver resultSaverLocal = new ResultSaver(new SavingToConsoleStrategy());
+            performanceTester.ResultSaver = resultSaverLocal;
+
+            // Begin timing.
+            performanceTester.Start();
+
             try
             {
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
@@ -41,25 +50,10 @@ namespace SQLtest
                 Console.WriteLine(e.ToString());
             }
             Console.WriteLine("All done");
-
-            // Create new stopwatch.
-            PerformanceTester performanceTester = new PerformanceTester();
-
-            // Begin timing.
-            performanceTester.Start();
-
-            // Do something.
-            for (int i = 0; i < 1000; i++)
-            {
-                Thread.Sleep(1);
-            }
+            
 
             // Stop timing.
             performanceTester.Stop();
-
-            // Write result.
-            Console.WriteLine("Time elapsed: {0}", performanceTester.Elapsed);
-            Console.WriteLine("All done");
 
             Console.ReadKey(true);
         }

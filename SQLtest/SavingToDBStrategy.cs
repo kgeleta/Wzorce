@@ -36,5 +36,10 @@ namespace SQLtest
             command.ExecuteNonQuery();
             connection.Close();
         }
+
+        void SavingStrategy.SaveResult(LocalPerformanceResult result)
+        {
+            Console.WriteLine("Not implemented");
+        }
     }
 }

@@ -24,5 +24,10 @@ namespace SQLtest
         {
             this.strategy.SaveResult(result);
         }
+
+        public void SaveResult(LocalPerformanceResult result)
+        {
+            this.strategy.SaveResult(result);
+        }
     }
 }
