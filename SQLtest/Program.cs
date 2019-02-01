@@ -15,8 +15,8 @@ namespace SQLtest
         {
             // Create new stopwatch.
             PerformanceTester performanceTester = new PerformanceTester();
-            ResultSaver resultSaverLocal = new ResultSaver(new SavingToConsoleStrategy());
-            performanceTester.ResultSaver = resultSaverLocal;
+            ResultSaver resultSaver = new ResultSaver(new SavingToDBStrategy());
+            performanceTester.ResultSaver = resultSaver;
 
             // Begin timing.
             performanceTester.Start();
@@ -33,7 +33,6 @@ namespace SQLtest
                 SqlConnection connection = new SqlConnection(builder.ConnectionString);
 
                 //ResultSaver resultSaver = new ResultSaver(new SavingToConsoleStrategy());
-                ResultSaver resultSaver = new ResultSaver(new SavingToDBStrategy());
 
                 SqlQueryExecution queryExecution = new SqlQueryExecution(connection);
                 queryExecution.ResultSaver = resultSaver;
@@ -53,7 +52,7 @@ namespace SQLtest
             
 
             // Stop timing.
-            performanceTester.Stop();
+            performanceTester.Stop(36);
 
             Console.ReadKey(true);
         }
