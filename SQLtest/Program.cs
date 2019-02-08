@@ -61,6 +61,9 @@ namespace SQLtest
             // Stop timing.
             performanceTester.Stop();
 
+            // test
+            Console.WriteLine("Computer name: {0}", Environment.MachineName);
+
             Console.ReadKey(true);
         }
     }

@@ -10,8 +10,8 @@ namespace SQLtest
     class SavingToDBStrategy : SavingStrategy
     {
         private SqlConnection connection;
-        private const string insertQuery = "INSERT INTO Performance.DB (LineNumber, CpuTime, ElapsedTime, BytesReceived, RowsSelected, AddTime)" +
-            " VALUES (@LineNumber, @CpuTime, @ElapsedTime, @BytesReceived, @RowsSelected, CURRENT_TIMESTAMP);";
+        private const string insertQuery = "INSERT INTO Performance.DB (ComputerName, LineNumber, CpuTime, ElapsedTime, BytesReceived, RowsSelected, AddTime)" +
+            " VALUES (@ComputerName, @LineNumber, @CpuTime, @ElapsedTime, @BytesReceived, @RowsSelected, CURRENT_TIMESTAMP);";
 
         public SavingToDBStrategy()
         {
@@ -32,6 +32,7 @@ namespace SQLtest
         void SavingStrategy.SaveResult(QueryPerformanceResult result)
         {
             SqlCommand command = new SqlCommand(insertQuery, connection);
+            command.Parameters.AddWithValue("@ComputerName", Environment.MachineName);
             command.Parameters.AddWithValue("@LineNumber", result.LineNumber);
             command.Parameters.AddWithValue("@CpuTime", result.CpuTime);
             command.Parameters.AddWithValue("@ElapsedTime", result.ElapsedTime);
