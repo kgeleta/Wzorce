@@ -12,10 +12,9 @@ namespace SQLtest
         private SqlConnection connection;
         private const string insertQuery = "INSERT INTO Performance.DB (ComputerName, LineNumber, CpuTime, ElapsedTime, BytesReceived, RowsSelected, AddTime)" +
             " VALUES (@ComputerName, @LineNumber, @CpuTime, @ElapsedTime, @BytesReceived, @RowsSelected, CURRENT_TIMESTAMP);";
-        private const string insertQuery = "INSERT INTO Performance.DB (LineNumber, CpuTime, ElapsedTime, BytesReceived, RowsSelected, AddTime)" +
-            " VALUES (@LineNumber, @CpuTime, @ElapsedTime, @BytesReceived, @RowsSelected, CURRENT_TIMESTAMP);";
-        private const string insertQueryLocal = "INSERT INTO Performance.DBLocal (LineNumber, CpuTime, CpuUsage, ElapsedTime, AddTime)" +
-            " VALUES (@LineNumber, @CpuTime, @CpuUsage, @ElapsedTime, CURRENT_TIMESTAMP);";
+        
+        private const string insertQueryLocal = "INSERT INTO Performance.DBLocal (ComputerName, LineNumber, CpuTime, CpuUsage, ElapsedTime, AddTime)" +
+            " VALUES (@ComputerName, @LineNumber, @CpuTime, @CpuUsage, @ElapsedTime, CURRENT_TIMESTAMP);";
 
         public SavingToDBStrategy()
         {
@@ -51,6 +50,7 @@ namespace SQLtest
         void SavingStrategy.SaveResult(LocalPerformanceResult result)
         {
             SqlCommand command = new SqlCommand(insertQueryLocal, connection);
+            command.Parameters.AddWithValue("@ComputerName", Environment.MachineName);
             command.Parameters.AddWithValue("@LineNumber", result.LineNumber);
             command.Parameters.AddWithValue("@CpuTime", result.CpuTime);
             command.Parameters.AddWithValue("@CpuUsage", result.CpuUsage);
