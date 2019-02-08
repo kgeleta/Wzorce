@@ -8,19 +8,21 @@ namespace SQLtest
 {
     class LocalPerformanceResult
     {
+        private int lineNumber;
         private long cpuTime;
         private long elapsedTime;
-        private float cpuUsage;
-        
+        private long cpuUsage;
+
+        public int LineNumber { get => lineNumber; set => lineNumber = value; }
         public long CpuTime { get => cpuTime; set => cpuTime = value; }
         public long ElapsedTime { get => elapsedTime; set => elapsedTime = value; }
-        public float CpuUsage { get => cpuUsage; set => cpuUsage = value; }
+        public long CpuUsage { get => cpuUsage; set => cpuUsage = value; }
 
         // FOR TESTING:
         public override string ToString()
         {
-            return "\ncpu: " + CpuTime.ToString() + "\nelapsed: " + 
-                ElapsedTime.ToString() + "\ncpuusage: " + CpuUsage.ToString();
+            return "line: " + LineNumber.ToString() + "\ncpu: " + CpuTime.ToString() + 
+                "\nelapsed: " + ElapsedTime.ToString() + "\ncpuusage: " + CpuUsage.ToString();
         }
     }
 }
