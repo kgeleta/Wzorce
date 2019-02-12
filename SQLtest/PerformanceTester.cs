@@ -15,7 +15,7 @@
         private CounterSample startCounterSample;
         private int avgCPUUsage;
 
-        private bool isRunning;
+        private TesterState state;
         private ResultSaver resultSaver;
 
         internal ResultSaver ResultSaver { get => resultSaver; set => resultSaver = value; }
@@ -25,129 +25,113 @@
             Reset();
         }
 
+        public void changeState(TesterState state)
+        {
+            this.state = state;
+        }
+
         public void Start()
         {
-            // Calling start on a running PerformanceTester is a no-op.
-            if (!isRunning)
-            {
-                startTimeStamp = GetTimestamp();
-                startCPUTime = GetCPUTime();
-                startCounterSample = GetNextSample();
-                isRunning = true;
-            }
+            state.Start();
         }
 
         public void Stop(int lineNumber)
         {
+            state.Stop(lineNumber);
+        }
+
+        public void startTest()
+        {
+            // Calling start on a running PerformanceTester is a no-op.
+            startTimeStamp = GetTimestamp();
+            startCPUTime = GetCPUTime();
+            startCounterSample = GetNextSample();
+        }
+
+        public void stopTest(int lineNumber)
+        {
             // Calling stop on a stopped is a no-op
-            if (isRunning)
+            long endTimeStamp = GetTimestamp();
+            long elapsedThisPeriod = endTimeStamp - startTimeStamp;
+            Elapsed1 += elapsedThisPeriod;
+
+            long endCPUTime = GetCPUTime();
+            long elapsedThisPeriodCPU = endCPUTime - startCPUTime;
+            ElapsedCPU1 += elapsedThisPeriodCPU;
+
+            CounterSample counterSampleCur = GetNextSample();
+            AvgCPUUsage = (int)CounterSample.Calculate(startCounterSample, counterSampleCur);
+
+            if (Elapsed1 < 0)
             {
-                long endTimeStamp = GetTimestamp();
-                long elapsedThisPeriod = endTimeStamp - startTimeStamp;
-                elapsed += elapsedThisPeriod;
+                // When measuring small time periods the PerformanceTester.Elapsed* 
+                // properties can return negative values.  This is due to 
+                // bugs in the basic input/output system (BIOS) or the hardware
+                // abstraction layer (HAL) on machines with variable-speed CPUs
+                // (e.g. Intel SpeedStep).
 
-                long endCPUTime = GetCPUTime();
-                long elapsedThisPeriodCPU = endCPUTime - startCPUTime;
-                elapsedCPU += elapsedThisPeriodCPU;
-
-                CounterSample counterSampleCur = GetNextSample();
-                avgCPUUsage = (int)CounterSample.Calculate(startCounterSample, counterSampleCur);
-
-                isRunning = false;
-
-                if (elapsed < 0)
-                {
-                    // When measuring small time periods the PerformanceTester.Elapsed* 
-                    // properties can return negative values.  This is due to 
-                    // bugs in the basic input/output system (BIOS) or the hardware
-                    // abstraction layer (HAL) on machines with variable-speed CPUs
-                    // (e.g. Intel SpeedStep).
-
-                    elapsed = 0;
-                }
-                if (elapsedCPU < 0)
-                {
-                    elapsedCPU = 0;
-                }
-                if (avgCPUUsage < 0)
-                {
-                    elapsedCPU = 0;
-                }
-
-                Save(lineNumber);
-                Reset();
+                Elapsed1 = 0;
             }
+            if (ElapsedCPU1 < 0)
+            {
+                ElapsedCPU1 = 0;
+            }
+            if (AvgCPUUsage < 0)
+            {
+                ElapsedCPU1 = 0;
+            }
+
+            Save(lineNumber);
+            Reset();
         }
 
         private void Save(int lineNumber)
         {
             LocalPerformanceResult performanceResult = new LocalPerformanceResult();
             performanceResult.LineNumber = lineNumber;
-            performanceResult.CpuTime = elapsedCPU;
-            performanceResult.CpuUsage = avgCPUUsage;
-            performanceResult.ElapsedTime = (long)elapsed/TicksPerMillisecond;
+            performanceResult.CpuTime = ElapsedCPU1;
+            performanceResult.CpuUsage = AvgCPUUsage;
+            performanceResult.ElapsedTime = (long)Elapsed1/TicksPerMillisecond;
             resultSaver.SaveResult(performanceResult);
         }
 
         public void Reset()
         {
-            elapsed = 0;
-            elapsedCPU = 0;
-            avgCPUUsage = 0;
-            isRunning = false;
+            Elapsed1 = 0;
+            ElapsedCPU1 = 0;
+            AvgCPUUsage = 0;
             startTimeStamp = 0;
             startCPUTime = 0;
-        }
-
-
-        public bool IsRunning
-        {
-            get { return isRunning; }
+            state = new NotRunningState(this);
         }
 
         public TimeSpan Elapsed
         {
-            get { return new TimeSpan(GetElapsedDateTimeTicks()); }
+            get { return new TimeSpan(state.GetElapsedDateTimeTicks()); }
         }
 
         public TimeSpan ElapsedCPU
         {
-            get { return new TimeSpan(GetElapsedCPUTime()); }
+            get { return new TimeSpan(state.GetElapsedCPUTime()); }
         }
 
-        public long AverageCPUUsage
-        {
-            get { return GetAvgCPUUsage(); }
-        }
+        public int AvgCPUUsage { get => avgCPUUsage; set => avgCPUUsage = value; }
+        public long ElapsedCPU1 { get => elapsedCPU; set => elapsedCPU = value; }
+        public long Elapsed1 { get => elapsed; set => elapsed = value; }
 
-        public long ElapsedMilliseconds
-        {
-            get { return GetElapsedDateTimeTicks() / TicksPerMillisecond; }
-        }
-
-        public long ElapsedCPUMilliseconds
-        {
-            get { return GetElapsedCPUTime() / TicksPerMillisecond; }
-        }
-
-       
         public static long GetTimestamp()
         {
             return DateTime.UtcNow.Ticks;
         }
 
-        private long GetElapsedDateTimeTicks()
+        public long GetElapsedDateTimeTicks()
         {
-            long timeElapsed = elapsed;
-
-            if (isRunning)
-            {
-                // If the PerformanceTester is running, add elapsed time since
-                // the PerformanceTester is started last time
-                long currentTimeStamp = GetTimestamp();
-                long elapsedUntilNow = currentTimeStamp - startTimeStamp;
-                timeElapsed += elapsedUntilNow;
-            }
+            long timeElapsed = Elapsed1;
+            // If the PerformanceTester is running, add elapsed time since
+            // the PerformanceTester is started last time
+            long currentTimeStamp = GetTimestamp();
+            long elapsedUntilNow = currentTimeStamp - startTimeStamp;
+            timeElapsed += elapsedUntilNow;
             return timeElapsed;
         }
 
@@ -156,16 +140,12 @@
             return (long) process.UserProcessorTime.TotalMilliseconds;
         }
 
-        private long GetElapsedCPUTime()
+        public long GetElapsedCPUTime()
         {
-            long timeElapsedCPU = elapsedCPU;
-
-            if (isRunning)
-            {
-                long currentCPUTime = GetCPUTime();
-                long elapsedUntilNow = currentCPUTime - startCPUTime;
-                timeElapsedCPU += elapsedUntilNow;
-            }
+            long timeElapsedCPU = ElapsedCPU1;
+            long currentCPUTime = GetCPUTime();
+            long elapsedUntilNow = currentCPUTime - startCPUTime;
+            timeElapsedCPU += elapsedUntilNow;
             return timeElapsedCPU;
         }
 
@@ -174,15 +154,10 @@
             return cpuCounter.NextSample();
         }
 
-        private int GetAvgCPUUsage()
+        public int GetAvgCPUUsage()
         {
-            int finalCPUPrcnt = avgCPUUsage;
-
-            if (isRunning)
-            {
-                CounterSample counterSampleCur = GetNextSample();
-                finalCPUPrcnt = (int)CounterSample.Calculate(startCounterSample, counterSampleCur);
-            }
+            CounterSample counterSampleCur = GetNextSample();
+            int finalCPUPrcnt = (int)CounterSample.Calculate(startCounterSample, counterSampleCur);
             return finalCPUPrcnt;
 
         }

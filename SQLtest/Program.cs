@@ -25,13 +25,13 @@ namespace SQLtest
             {
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
 
-                //builder.DataSource = "DESKTOP-T44BHH8\\SQLEXPRESS";
-                //builder.UserID = "rejurhf";
-                //builder.Password = "4815162342";
+                builder.DataSource = "DESKTOP-T44BHH8\\SQLEXPRESS";
+                builder.UserID = "rejurhf";
+                builder.Password = "4815162342";
 
-                builder.DataSource = "BMO\\SQLEXPRESS";
-                builder.UserID = "krzysiek";
-                builder.Password = "password";
+                //builder.DataSource = "BMO\\SQLEXPRESS";
+                //builder.UserID = "krzysiek";
+                //builder.Password = "password";
                 
                 builder.InitialCatalog = "AdventureWorks2017";
 
@@ -54,11 +54,9 @@ namespace SQLtest
             {
                 Console.WriteLine(e.ToString());
             }
-            Console.WriteLine("All done");
-            
 
             // Stop timing.
-            performanceTester.Stop(36);
+            performanceTester.Stop(40);
 
             // test
             Console.WriteLine("Computer name: {0}", Environment.MachineName);
