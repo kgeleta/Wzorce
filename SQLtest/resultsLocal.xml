@@ -1,17 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <results>
-<result>
-<ComputerName>DESKTOP-I99NRC2</ComputerName>
-<LineNumber>36</LineNumber>
-<CpuTime>203</CpuTime>
-<CpuUsage>64</CpuUsage>
-<ElapsedTime>817</ElapsedTime>
-</result>
-<result>
-<ComputerName>DESKTOP-I99NRC2</ComputerName>
-<LineNumber>36</LineNumber>
-<CpuTime>266</CpuTime>
-<CpuUsage>68</CpuUsage>
-<ElapsedTime>535</ElapsedTime>
-</result>
 </results>
